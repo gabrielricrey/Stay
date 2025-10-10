@@ -38,5 +38,31 @@ authApp.post('/register', async (c) => {
     }
 });
 
+authApp.post('/login', async (c) => {
+    try {
+
+        const { email, password } = await c.req.json();
+
+        if (!email || !password) {
+            return c.json({ error: "Email and password are required" }, 400);
+        }
+
+        const sb = c.get("supabase");
+
+        const { data, error } = await sb.auth.signInWithPassword({ email, password });
+
+        if (error) {
+            console.error("Error signing in:", error.code, error.message);
+            return c.json({ error: "Your login details don’t match any account." }, 400)
+        }
+
+        return c.json({ message: "Login succesful", user: data.user ? { id: data.user.id, email: data.user.email } : null })
+    } catch (error) {
+        console.error("Unexpected error in login:", error);
+        return c.json({ error: "Internal server error" }, 500)
+    }
+
+})
+
 export default authApp;
 
