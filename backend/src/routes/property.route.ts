@@ -48,6 +48,28 @@ propertyApp.get('/', propertiesQueryValidator, async (c) => {
     }
 })
 
+propertyApp.get('/:id', async (c) => {
+    try {
+        const id = c.req.param('id');
+
+        if (!isUUID(id)) {
+            return c.json({ message: "Wrong format on ID" }, 400)
+        }
+
+        const sb = c.get("supabase");
+        const response: PostgrestSingleResponse<Property> = await sb.from("properties").select().eq("id", id).single();
+
+        if (response.error) {
+            console.error("Error getting property:", response.error.code, response.error.message)
+            return c.json({ message: "Error, no property with this ID" }, 400)
+        }
+
+        return c.json({ message: "Success getting property", property: { id: response.data.id, name: response.data.name } }, 200)
+    } catch (error) {
+        console.error("Error getting property:", error)
+        return c.json({ message: "Internal server error" }, 500)
+    }
+})
 
 propertyApp.post('/', requireAuth, newPropertyValidator, async (c) => {
     try {
@@ -57,14 +79,14 @@ propertyApp.post('/', requireAuth, newPropertyValidator, async (c) => {
 
         if (error) {
             console.error("Error creating property:", error.code, error.message);
-            return c.json({ error: "Error" }, 400);
+            return c.json({ message: "Error" }, 400);
         }
 
         return c.json({ message: "Property successfully created", property: { id: data.id, name: data.name } })
 
     } catch (error) {
         console.error(error);
-        return c.json({ error: "Internal server error" }, 500);
+        return c.json({ message: "Internal server error" }, 500);
     }
 })
 
@@ -81,7 +103,7 @@ propertyApp.delete('/:id', requireAuth, async (c) => {
 
         if (error) {
             console.error("Error deleting property", error.code, error.message)
-            return c.json({ message: "Error, no property with this id" }, 400)
+            return c.json({ message: "Error, no property with this ID" }, 400)
         }
 
         return c.json({ message: "Property succesfully deleted", property: data.name })
