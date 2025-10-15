@@ -90,6 +90,33 @@ propertyApp.post('/', requireAuth, newPropertyValidator, async (c) => {
     }
 })
 
+propertyApp.put('/:id', requireAuth, newPropertyValidator, async (c) => {
+    try {
+        const id = c.req.param('id');
+
+        if (!isUUID(id)) {
+            return c.json({ message: "Wrong format on ID" }, 400)
+        }
+
+        const data = c.req.valid("json");
+        const sb = c.get("supabase");
+
+        const response: PostgrestSingleResponse<Property> = await sb.from("properties").update(data).eq("id", id).select().single();
+
+        if (response.error) {
+            console.error("Error updating property:", response.error.code, response.error.message)
+            return c.json({ message: "Error updating property" }, 400)
+        }
+
+        return c.json({ message: "Success updating property", property: response.data }, 200)
+
+    } catch (error) {
+        console.error("Error updating property:", error)
+        return c.json({ message: "Internal server error" }, 500)
+
+    }
+})
+
 propertyApp.delete('/:id', requireAuth, async (c) => {
     try {
         const id = c.req.param('id');
