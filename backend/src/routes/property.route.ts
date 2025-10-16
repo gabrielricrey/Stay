@@ -20,7 +20,7 @@ propertyApp.get('/', propertiesQueryValidator, async (c) => {
 
         const sb = c.get("supabase");
 
-        const _query = sb.from("properties").select("*", { count: "exact" }).range(startIndex, endIndex).order(order, { ascending: true })
+        const _query = sb.from("properties").select("*", { count: "exact" }).eq("is_available", true).range(startIndex, endIndex).order(order, { ascending: true })
 
         if (query.q) {
             _query.or(`name.ilike.%${query.q}%,description.ilike.%${query.q}%`)
@@ -32,6 +32,10 @@ propertyApp.get('/', propertiesQueryValidator, async (c) => {
         if (response.error) {
             console.error("Error getting properties:", response.error.code, response.error.message)
             return c.json({ message: "Error getting properties" }, 400)
+        }
+
+        if (response.data.length === 0) {
+            return c.json({ message: "No properties available" }, 400)
         }
 
         const defaultResponse: PaginatedListResponse<Property> = {
