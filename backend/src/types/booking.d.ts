@@ -10,7 +10,7 @@ interface Booking extends NewBooking {
     id: string;
     created_at: string;
     updated_at: string;
-    status: "pending" | "confirmed" | "cancelled";
+    status: "pending" | "confirmed" | "cancelled" | "completed";
 
 }
 
