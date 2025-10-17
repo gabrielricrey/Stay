@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { newBookingValidator } from "../utils/bookingValidator.js";
+import { newBookingValidator, editBookingValidator } from "../utils/bookingValidator.js";
 import { requireAuth } from "../middleware/auth.js";
 import type { PostgrestSingleResponse } from "@supabase/supabase-js";
 import { differenceInCalendarDays } from "date-fns";
@@ -42,7 +42,6 @@ bookingApp.get('/:id', requireAuth, async (c) => {
         }
 
         const sb = c.get("supabase");
-        const userId = c.get("user")?.id
         const response: PostgrestSingleResponse<Booking> = await sb.from("bookings").select().eq("id", id).single();
 
         const { data, error } = response;
@@ -76,21 +75,6 @@ bookingApp.post('/', requireAuth, newBookingValidator, async (c) => {
             return c.json({ message: "Bad luck, property not available anymore" }, 400);
         }
 
-        // Fetch bookings on property to check overlapping dates with new booking.
-        const response2: PostgrestSingleResponse<Booking[]> = await sb.from("bookings").select("*").eq("property_id", booking.property_id).neq("status", "cancelled");
-
-        if (response2.error) {
-            console.error("Error getting bookings:", response2.error.code, response2.error.message);
-            return c.json({ message: "Oops, something went wrong, try again!" }, 400);
-        }
-
-        if (response2.data.length !== 0) {
-            const isOverlapping = response2.data.some(b => booking.check_in_date <= b.check_out_date && booking.check_out_date >= b.check_in_date)
-            if (isOverlapping) {
-                return c.json({ message: "Property not available these dates, try other dates!" }, 400);
-            }
-        }
-
         const userId = c.get("user")?.id;
         const amountOfDays = differenceInCalendarDays(new Date(booking.check_out_date), new Date(booking.check_in_date));
         booking.total_cost = response1.data.price_per_night * amountOfDays;
@@ -98,8 +82,12 @@ bookingApp.post('/', requireAuth, newBookingValidator, async (c) => {
 
         const response: PostgrestSingleResponse<Booking> = await sb.from("bookings").insert(booking).select().single()
 
-        if (response.error) {
-            console.error("Error creating booking:", response.error.code, response.error.message);
+        const { data, error } = response;
+
+        if (error) {
+            console.error("Error creating booking:", error.code, error.message);
+            if (error.message === 'Property already booked for these dates')
+                return c.json({ message: "Property already booked for these dates" }, 400);
             return c.json({ message: "Oops, something went wrong, try again!" }, 400);
         }
 
@@ -108,6 +96,68 @@ bookingApp.post('/', requireAuth, newBookingValidator, async (c) => {
     } catch (error) {
         console.error(error);
         return c.json({ message: "Internal server error" }, 500);
+    }
+})
+
+bookingApp.put('/:id', requireAuth, editBookingValidator, async (c) => {
+    try {
+        const id = c.req.param('id');
+
+        if (!isUUID(id)) {
+            return c.json({ message: "Wrong format on ID" }, 400)
+        }
+
+        const sb = c.get("supabase");
+        const res: PostgrestSingleResponse<Booking> = await sb.from("bookings").select().eq("id", id).single();
+
+        const { data: booking, error: err } = res;
+
+        if (err) {
+            console.error("Error getting booking:", err.code, err.message);
+            return c.json({ message: "Oops, something went wrong, try again!" }, 400)
+        }
+
+        const userId = c.get("user")?.id
+        const res1: PostgrestSingleResponse<UserProfile> = await sb.from("user_profiles").select().eq("id", userId).single();
+
+        const { data: user, error: getUserError } = res1;
+
+        if (getUserError) {
+            console.error("Error getting user:", getUserError.code, getUserError.message);
+            return c.json({ message: "Oops, something went wrong, try again!" }, 400)
+        }
+
+        const isAdmin = user.is_admin;
+        const isOwner = booking.user_id === userId;
+
+        if (!isAdmin && !isOwner) {
+            return c.json({ message: "Forbidden, you have no right to be here!" }, 403)
+        }
+
+        console.log("INSIDE AS ADMIN OR OWNER OF BOOKING!")
+
+        const updateData: Partial<Booking> = c.req.valid("json");
+        delete updateData.property_id
+
+        if (isOwner && (updateData.status && updateData.status !== 'cancelled')) {
+            return c.json({ message: "You are not allowed to do this change" }, 400);
+        }
+
+        const response: PostgrestSingleResponse<Booking> = await sb.from("bookings").update(updateData).eq("id", id).select().single();
+
+        const { data, error } = response;
+
+        if (error) {
+            console.error("Error updating booking:", error.code, error.message)
+            if (error.message === 'Property already booked for these dates')
+                return c.json({ message: "Property already booked for these dates" }, 400);
+            return c.json({ message: "Oops something went wrong, try again" }, 400)
+        }
+
+        return c.json({ updatedBooking: data }, 200)
+    } catch (error) {
+        console.error("Error updating booking:", error)
+        return c.json({ message: "Internal server error" }, 500)
     }
 })
 
