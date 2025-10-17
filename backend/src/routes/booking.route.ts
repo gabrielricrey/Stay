@@ -7,6 +7,30 @@ import { differenceInCalendarDays } from "date-fns";
 
 const bookingApp = new Hono({ strict: false });
 
+bookingApp.get('/', requireAuth, async (c) => {
+    try {
+        const sb = c.get("supabase");
+        const userId = c.get("user")?.id
+
+        const response: PostgrestSingleResponse<Booking[]> = await sb.from("bookings").select().eq("user_id", userId).neq("status", "cancelled");
+
+        const { data, error } = response;
+
+        if (error) {
+            console.error("Error getting bookings:", error.code, error.message)
+            return c.json({ message: "Oops something went wrong, try again" }, 400)
+        }
+
+        if (data.length === 0) {
+            return c.json({ message: "You have no bookings" }, 200)
+        }
+
+        return c.json({ bookings: data }, 200)
+    } catch (error) {
+
+    }
+})
+
 bookingApp.post('/', requireAuth, newBookingValidator, async (c) => {
     try {
         const booking: NewBooking = c.req.valid("json");
