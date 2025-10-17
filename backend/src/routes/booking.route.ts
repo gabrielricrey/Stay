@@ -3,6 +3,7 @@ import { newBookingValidator } from "../utils/bookingValidator.js";
 import { requireAuth } from "../middleware/auth.js";
 import type { PostgrestSingleResponse } from "@supabase/supabase-js";
 import { differenceInCalendarDays } from "date-fns";
+import { validate as isUUID } from "uuid";
 
 
 const bookingApp = new Hono({ strict: false });
@@ -27,7 +28,34 @@ bookingApp.get('/', requireAuth, async (c) => {
 
         return c.json({ bookings: data }, 200)
     } catch (error) {
+        console.error("Error getting bookings:", error)
+        return c.json({ message: "Internal server error" }, 500)
+    }
+})
 
+bookingApp.get('/:id', requireAuth, async (c) => {
+    try {
+        const id = c.req.param('id');
+
+        if (!isUUID(id)) {
+            return c.json({ message: "Wrong format on ID" }, 400)
+        }
+
+        const sb = c.get("supabase");
+        const userId = c.get("user")?.id
+        const response: PostgrestSingleResponse<Booking> = await sb.from("bookings").select().eq("id", id).single();
+
+        const { data, error } = response;
+
+        if (error) {
+            console.error("Error getting booking:", error.code, error.message)
+            return c.json({ message: "Oops something went wrong, try again" }, 400)
+        }
+
+        return c.json({ booking: data }, 200)
+    } catch (error) {
+        console.error("Error getting booking:", error)
+        return c.json({ message: "Internal server error" }, 500)
     }
 })
 
