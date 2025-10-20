@@ -11,3 +11,9 @@ interface Property extends NewProperty {
     created_at: string,
     updated_at: string,
 }
+
+type PropertyWithBookings = {
+    id: string,
+    name: string,
+    bookings: Booking[]
+}
