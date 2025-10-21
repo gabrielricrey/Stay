@@ -6,7 +6,7 @@ import { newPropertyValidator } from "../utils/propertyValidator.js";
 
 const hostPropertyApp = new Hono({ strict: false })
 
-hostPropertyApp.get('/properties', requireAuth, async (c) => {
+hostPropertyApp.get('/', requireAuth, async (c) => {
     try {
         const sb = c.get("supabase");
         const userId = c.get("user")!.id;
@@ -33,7 +33,7 @@ hostPropertyApp.get('/properties', requireAuth, async (c) => {
 
     }
 })
-hostPropertyApp.get('/properties/:id', requireAuth, async (c) => {
+hostPropertyApp.get('/:id', requireAuth, async (c) => {
     try {
         const id = c.req.param('id');
 
@@ -92,9 +92,9 @@ hostPropertyApp.put('/:id', requireAuth, newPropertyValidator, async (c) => {
             return c.json({ message: "Wrong format on ID" }, 400)
         }
 
-        const data = c.req.valid("json");
+        const data: Partial<Property> = c.req.valid("json");
+        data.updated_at = new Date().toISOString();
         const sb = c.get("supabase");
-
         const response: PostgrestSingleResponse<Property> = await sb.from("properties").update(data).eq("id", id).select().single();
 
         if (response.error) {
