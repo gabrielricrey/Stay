@@ -7,5 +7,6 @@ interface NewUserProfile {
 interface UserProfile extends NewUserProfile {
     id: string,
     created_at: string
+    updated_at: string,
     is_admin: boolean,
 }
