@@ -5,6 +5,7 @@ import propertyApp from './routes/property.route.js'
 import bookingApp from './routes/booking.route.js'
 import hostPropertyApp from './routes/host.property.route.js'
 import hostBookingApp from './routes/host.booking.route.js'
+import userApp from './routes/user.route.js'
 import { withSupabase, requireAuth } from './middleware/auth.js'
 
 const app = new Hono()
@@ -16,6 +17,7 @@ app.route('/property', propertyApp);
 app.route('/booking', bookingApp);
 app.route('/host/property', hostPropertyApp);
 app.route('/host/booking', hostBookingApp);
+app.route('/me', userApp);
 
 serve({
   fetch: app.fetch,
