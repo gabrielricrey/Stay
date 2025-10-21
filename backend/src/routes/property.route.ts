@@ -30,8 +30,8 @@ propertyApp.get('/', propertiesQueryValidator, async (c) => {
         console.log(response);
 
         if (response.error) {
-            console.error("Error getting properties:", response.error.code, response.error.message)
-            return c.json({ message: "Error getting properties" }, 400)
+            console.error("Error fetching properties:", response.error.code, response.error.message)
+            return c.json({ message: "Error fetching properties" }, 400)
         }
 
         if (response.data.length === 0) {
@@ -45,7 +45,7 @@ propertyApp.get('/', propertiesQueryValidator, async (c) => {
             count: response.count || 0
         }
         console.log(response.data);
-        return c.json({ message: "Success getting properties", properties: defaultResponse }, 200)
+        return c.json({ message: "Success fetching properties", properties: defaultResponse }, 200)
     } catch (error) {
         console.error(error);
         return c.json({ message: "Internal server error" }, 500)
@@ -64,84 +64,17 @@ propertyApp.get('/:id', async (c) => {
         const response: PostgrestSingleResponse<Property> = await sb.from("properties").select().eq("id", id).single();
 
         if (response.error) {
-            console.error("Error getting property:", response.error.code, response.error.message)
+            console.error("Error fetching property:", response.error.code, response.error.message)
             return c.json({ message: "Error, no property with this ID" }, 400)
         }
 
-        return c.json({ message: "Success getting property", property: { id: response.data.id, name: response.data.name } }, 200)
+        return c.json({ message: "Success fetching property", property: { id: response.data.id, name: response.data.name } }, 200)
     } catch (error) {
-        console.error("Error getting property:", error)
+        console.error("Error fetching property:", error)
         return c.json({ message: "Internal server error" }, 500)
     }
 })
 
-propertyApp.post('/', requireAuth, newPropertyValidator, async (c) => {
-    try {
-        const property: NewProperty = c.req.valid("json");
-        const sb = c.get("supabase");
-        const { data, error } = await sb.from("properties").insert(property).select().single()
 
-        if (error) {
-            console.error("Error creating property:", error.code, error.message);
-            return c.json({ message: "Error" }, 400);
-        }
-
-        return c.json({ message: "Property successfully created", property: { id: data.id, name: data.name } })
-
-    } catch (error) {
-        console.error(error);
-        return c.json({ message: "Internal server error" }, 500);
-    }
-})
-
-propertyApp.put('/:id', requireAuth, newPropertyValidator, async (c) => {
-    try {
-        const id = c.req.param('id');
-
-        if (!isUUID(id)) {
-            return c.json({ message: "Wrong format on ID" }, 400)
-        }
-
-        const data = c.req.valid("json");
-        const sb = c.get("supabase");
-
-        const response: PostgrestSingleResponse<Property> = await sb.from("properties").update(data).eq("id", id).select().single();
-
-        if (response.error) {
-            console.error("Error updating property:", response.error.code, response.error.message)
-            return c.json({ message: "Error updating property" }, 400)
-        }
-
-        return c.json({ message: "Success updating property", property: response.data }, 200)
-
-    } catch (error) {
-        console.error("Error updating property:", error)
-        return c.json({ message: "Internal server error" }, 500)
-
-    }
-})
-
-propertyApp.delete('/:id', requireAuth, async (c) => {
-    try {
-        const id = c.req.param('id');
-
-        if (!isUUID(id)) {
-            return c.json({ message: "Wrong format on ID" }, 400)
-        }
-
-        const sb = c.get("supabase");
-        const { data, error } = await sb.from("properties").delete().eq('id', id).select().single();
-
-        if (error) {
-            console.error("Error deleting property", error.code, error.message)
-            return c.json({ message: "Error, no property with this ID" }, 400)
-        }
-
-        return c.json({ message: "Property succesfully deleted", property: data.name })
-    } catch (error) {
-        console.error(error);
-        return c.json({ message: "Internal server error" }, 500)
-    }
-})
 
 export default propertyApp;

@@ -18,7 +18,7 @@ bookingApp.get('/', requireAuth, async (c) => {
         const { data, error } = response;
 
         if (error) {
-            console.error("Error getting bookings:", error.code, error.message)
+            console.error("Error fetching bookings:", error.code, error.message)
             return c.json({ message: "Oops something went wrong, try again" }, 400)
         }
 
@@ -28,7 +28,7 @@ bookingApp.get('/', requireAuth, async (c) => {
 
         return c.json({ bookings: data }, 200)
     } catch (error) {
-        console.error("Error getting bookings:", error)
+        console.error("Error fetching bookings:", error)
         return c.json({ message: "Internal server error" }, 500)
     }
 })
@@ -47,13 +47,13 @@ bookingApp.get('/:id', requireAuth, async (c) => {
         const { data, error } = response;
 
         if (error) {
-            console.error("Error getting booking:", error.code, error.message)
+            console.error("Error fetching booking:", error.code, error.message)
             return c.json({ message: "Oops something went wrong, try again" }, 400)
         }
 
         return c.json({ booking: data }, 200)
     } catch (error) {
-        console.error("Error getting booking:", error)
+        console.error("Error fetching booking:", error)
         return c.json({ message: "Internal server error" }, 500)
     }
 })
@@ -67,7 +67,7 @@ bookingApp.post('/', requireAuth, newBookingValidator, async (c) => {
         const response1: PostgrestSingleResponse<Property> = await sb.from("properties").select().eq("id", booking.property_id).single();
 
         if (response1.error) {
-            console.error("Error getting property:", response1.error.code, response1.error.message);
+            console.error("Error fetching property:", response1.error.code, response1.error.message);
             return c.json({ message: "Oops, something went wrong, try again!" }, 400);
         }
 
@@ -113,7 +113,7 @@ bookingApp.put('/:id', requireAuth, editBookingValidator, async (c) => {
         const { data: booking, error: err } = res;
 
         if (err) {
-            console.error("Error getting booking:", err.code, err.message);
+            console.error("Error fetching booking:", err.code, err.message);
             return c.json({ message: "Oops, something went wrong, try again!" }, 400)
         }
 
@@ -123,7 +123,7 @@ bookingApp.put('/:id', requireAuth, editBookingValidator, async (c) => {
         const { data: user, error: getUserError } = res1;
 
         if (getUserError) {
-            console.error("Error getting user:", getUserError.code, getUserError.message);
+            console.error("Error fetching user:", getUserError.code, getUserError.message);
             return c.json({ message: "Oops, something went wrong, try again!" }, 400)
         }
 
