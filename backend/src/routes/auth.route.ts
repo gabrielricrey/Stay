@@ -56,7 +56,7 @@ authApp.post('/login', async (c) => {
             return c.json({ error: "Your login details don’t match any account." }, 400)
         }
 
-        return c.json({ message: "Login succesful", user: data.user ? { id: data.user.id, email: data.user.email } : null })
+        return c.json({ message: "Login succesful", user: data.user ? { id: data.user.id, email: data.user.email } : null }, 200)
     } catch (error) {
         console.error("Unexpected error in login:", error);
         return c.json({ error: "Internal server error" }, 500)

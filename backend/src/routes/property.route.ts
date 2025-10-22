@@ -68,7 +68,7 @@ propertyApp.get('/:id', async (c) => {
             return c.json({ message: "Error, no property with this ID" }, 400)
         }
 
-        return c.json({ message: "Success fetching property", property: { id: response.data.id, name: response.data.name } }, 200)
+        return c.json({ message: "Success fetching property", property: response.data }, 200)
     } catch (error) {
         console.error("Error fetching property:", error)
         return c.json({ message: "Internal server error" }, 500)
