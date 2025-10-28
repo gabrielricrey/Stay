@@ -13,8 +13,8 @@ interface Property extends NewProperty {
     updated_at: string,
 }
 
-type PropertyWithBookings = {
-    id: string,
-    name: string,
-    bookings: Booking[]
+interface PropertyWithBookings extends Property {
+    bookings: BookingWithProfile[];
 }
+
+

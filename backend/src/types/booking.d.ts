@@ -14,7 +14,21 @@ interface Booking extends NewBooking {
 
 }
 
+interface BookingWithProfile extends Booking {
+    user_profiles: {
+        first_name: string;
+    };
+}
+
 interface BookingWithProperty extends Booking {
     properties: Property
+}
+
+interface BookingWithUserAndProperty extends Booking {
+    user_profile: {
+        first_name: string;
+    };
+    property_name: string;
+    property_image: string | null;
 }
 
