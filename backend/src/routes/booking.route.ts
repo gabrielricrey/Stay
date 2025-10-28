@@ -42,7 +42,7 @@ bookingApp.get('/:id', requireAuth, async (c) => {
         }
 
         const sb = c.get("supabase");
-        const response: PostgrestSingleResponse<Booking> = await sb.from("bookings").select().eq("id", id).single();
+        const response: PostgrestSingleResponse<BookingWithProperty> = await sb.from("bookings").select('*,properties(name) ').eq("id", id).single();
 
         const { data, error } = response;
 
@@ -91,7 +91,7 @@ bookingApp.post('/', requireAuth, newBookingValidator, async (c) => {
             return c.json({ message: "Oops, something went wrong, try again!" }, 400);
         }
 
-        return c.json({ message: "Booking successfully created!", bookingId: response.data.id }, 201)
+        return c.json({ message: "Booking successfully created!", bookingId: data.id }, 201)
 
     } catch (error) {
         console.error(error);
@@ -134,10 +134,9 @@ bookingApp.put('/:id', requireAuth, editBookingValidator, async (c) => {
             return c.json({ message: "Forbidden, you have no right to be here!" }, 403)
         }
 
-        console.log("INSIDE AS ADMIN OR OWNER OF BOOKING!")
 
         const updateData: Partial<Booking> = c.req.valid("json");
-        delete updateData.property_id
+
 
         if (isOwner && (updateData.status && updateData.status !== 'cancelled')) {
             return c.json({ message: "You are not allowed to do this change" }, 400);
