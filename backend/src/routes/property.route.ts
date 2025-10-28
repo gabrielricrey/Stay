@@ -27,7 +27,7 @@ propertyApp.get('/', propertiesQueryValidator, async (c) => {
         }
 
         const response: PostgrestSingleResponse<Property[]> = await _query;
-        console.log(response);
+
 
         if (response.error) {
             console.error("Error fetching properties:", response.error.code, response.error.message)
@@ -44,7 +44,7 @@ propertyApp.get('/', propertiesQueryValidator, async (c) => {
             limit,
             count: response.count || 0
         }
-        console.log(response.data);
+
         return c.json({ message: "Success fetching properties", properties: defaultResponse }, 200)
     } catch (error) {
         console.error(error);
