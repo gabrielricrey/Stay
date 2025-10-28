@@ -21,7 +21,7 @@ userApp.get('/', requireAuth, async (c) => {
             return c.json({ message: "User profile not found" }, 404);
         }
 
-        return c.json({ message: "Success fetching user profile", profile: data }, 200);
+        return c.json({ data }, 200);
 
     } catch (error) {
         console.error("Error fetching user profile:", error);
