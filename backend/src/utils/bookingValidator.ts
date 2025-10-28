@@ -8,7 +8,6 @@ const newBookingschema: z.ZodType<NewBooking> = z.object({
 });
 
 const editBookingschema: z.ZodType<Partial<Booking>> = z.object({
-    property_id: z.string(),
     check_in_date: z.string().optional(),
     check_out_date: z.string().optional(),
     status: z.enum(["pending", "cancelled", "confirmed", "completed"]).optional()
