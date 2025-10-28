@@ -4,6 +4,7 @@ interface NewProperty {
     price_per_night: number,
     user_id: string,
     is_available?: boolean,
+    image_url: string,
 }
 
 interface Property extends NewProperty {
