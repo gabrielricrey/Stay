@@ -65,8 +65,10 @@ hostPropertyApp.get('/:id', requireAuth, async (c) => {
 
 hostPropertyApp.post('/', requireAuth, newPropertyValidator, async (c) => {
     try {
-        const property: NewProperty = c.req.valid("json");
         const sb = c.get("supabase");
+        const userId = c.get("user")!.id;
+        let property: NewProperty = c.req.valid("json");
+        property.user_id = userId;
         const response: PostgrestSingleResponse<Property> = await sb.from("properties").insert(property).select().single();
 
         const { data, error } = response;

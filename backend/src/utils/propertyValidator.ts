@@ -5,8 +5,8 @@ const newPropertySchema: z.ZodType<NewProperty> = z.object({
     name: z.string().min(1),
     description: z.string().optional(),
     price_per_night: z.number().nonnegative(),
-    user_id: z.uuid(),
-    is_available: z.boolean().optional()
+    is_available: z.boolean().optional(),
+    image_url: z.string(),
 });
 
 export const newPropertyValidator = zValidator("json", newPropertySchema);
