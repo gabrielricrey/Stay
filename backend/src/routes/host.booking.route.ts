@@ -30,15 +30,13 @@ hostBookingApp.get('/', requireAuth, async (c) => {
         }
 
         const allBookings: BookingWithUserAndProperty[] = data.flatMap(property =>
-            property.bookings.map(({ user_profiles, ...booking }) => ({
+            property.bookings.map(booking => ({
                 ...booking,
-                user_profile: user_profiles,
                 property_name: property.name,
                 property_image: property.image_url,
             }))
         )
 
-        console.log(allBookings);
 
         return c.json({ hostBookings: allBookings }, 200);
     } catch (error) {
