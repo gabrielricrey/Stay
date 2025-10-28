@@ -11,9 +11,9 @@ hostPropertyApp.get('/', requireAuth, async (c) => {
         const sb = c.get("supabase");
         const userId = c.get("user")!.id;
 
-        const response: PostgrestSingleResponse<Property[]> = await sb
+        const response: PostgrestSingleResponse<PropertyPreview[]> = await sb
             .from("properties")
-            .select('*')
+            .select('id,name,image_url')
             .eq("user_id", userId);
 
         const { data, error } = response;
