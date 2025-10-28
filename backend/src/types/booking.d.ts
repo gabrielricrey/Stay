@@ -14,8 +14,7 @@ interface Booking extends NewBooking {
 
 }
 
-type BookingWithProperty = {
-    booking: Booking,
-    property: Property
+interface BookingWithProperty extends Booking {
+    properties: Property
 }
 
