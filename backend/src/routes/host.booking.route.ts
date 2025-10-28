@@ -14,8 +14,9 @@ hostBookingApp.get('/', requireAuth, async (c) => {
 
         const response: PostgrestSingleResponse<PropertyWithBookings[]> = await sb
             .from("properties")
-            .select('*, bookings(*)')
-            .eq("user_id", userId);
+            .select('*, bookings!inner(*, user_profiles(first_name))')
+            .eq("user_id", userId)
+            .neq("bookings.status", 'cancelled');
 
         const { data, error } = response;
 
@@ -27,7 +28,19 @@ hostBookingApp.get('/', requireAuth, async (c) => {
         if (data.length === 0) {
             return c.json({ message: "You have no bookings at the moment" }, 200);
         }
-        return c.json({ message: "Success fetching properties with bookings", propertiesAndBookings: data }, 200);
+
+        const allBookings: BookingWithUserAndProperty[] = data.flatMap(property =>
+            property.bookings.map(({ user_profiles, ...booking }) => ({
+                ...booking,
+                user_profile: user_profiles,
+                property_name: property.name,
+                property_image: property.image_url,
+            }))
+        )
+
+        console.log(allBookings);
+
+        return c.json({ hostBookings: allBookings }, 200);
     } catch (error) {
         console.error("Error fetching bookings:", error)
         return c.json({ message: "Internal server error" }, 500);
@@ -86,7 +99,7 @@ hostBookingApp.put('/:id', requireAuth, hostEditBookingValidator, async (c) => {
             return c.json({ message: "Booking not found" }, 404);
         }
 
-        if (booking.property.user_id !== userId) {
+        if (booking.properties.user_id !== userId) {
             return c.json({ message: "Not authorized to modify this booking" }, 403);
         }
 
