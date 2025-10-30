@@ -13,7 +13,7 @@ bookingApp.get('/', requireAuth, async (c) => {
         const sb = c.get("supabase");
         const userId = c.get("user")?.id
 
-        const response: PostgrestSingleResponse<Booking[]> = await sb.from("bookings").select().eq("user_id", userId);
+        const response: PostgrestSingleResponse<BookingWithProperty[]> = await sb.from("bookings").select('*,properties(name,image_url)').eq("user_id", userId);
 
         const { data, error } = response;
 
