@@ -1,7 +1,9 @@
 import { Hono } from "hono"
 import { requireAuth } from "../middleware/auth.js"
 import type { PostgrestSingleResponse } from "@supabase/supabase-js";
-import { userProfileValidator } from "../utils/userProfileValidator.js";
+import { updateUserProfileValidator } from "../utils/userProfileValidator.js";
+
+
 const userApp = new Hono({ strict: false })
 
 userApp.get('/', requireAuth, async (c) => {
@@ -21,7 +23,7 @@ userApp.get('/', requireAuth, async (c) => {
             return c.json({ message: "User profile not found" }, 404);
         }
 
-        return c.json({ data }, 200);
+        return c.json(data, 200);
 
     } catch (error) {
         console.error("Error fetching user profile:", error);
@@ -30,7 +32,7 @@ userApp.get('/', requireAuth, async (c) => {
 
 });
 
-userApp.put('/', userProfileValidator, requireAuth, async (c) => {
+userApp.put('/', requireAuth, updateUserProfileValidator, async (c) => {
     try {
         const userId = c.get("user")?.id;
         const sb = c.get("supabase");

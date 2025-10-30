@@ -28,24 +28,26 @@ propertyApp.get('/', propertiesQueryValidator, async (c) => {
 
         const response: PostgrestSingleResponse<Property[]> = await _query;
 
+        const { data, error } = response;
 
-        if (response.error) {
-            console.error("Error fetching properties:", response.error.code, response.error.message)
+
+        if (error) {
+            console.error("Error fetching properties:", error.code, error.message);
             return c.json({ message: "Error fetching properties" }, 400)
         }
 
-        if (response.data.length === 0) {
+        if (data.length === 0) {
             return c.json({ message: "No properties available" }, 400)
         }
 
         const defaultResponse: PaginatedListResponse<Property> = {
-            data: response.data,
+            data,
             offset,
             limit,
             count: response.count || 0
         }
 
-        return c.json({ message: "Success fetching properties", properties: defaultResponse }, 200)
+        return c.json({ properties: defaultResponse }, 200)
     } catch (error) {
         console.error(error);
         return c.json({ message: "Internal server error" }, 500)
@@ -63,12 +65,14 @@ propertyApp.get('/:id', async (c) => {
         const sb = c.get("supabase");
         const response: PostgrestSingleResponse<Property> = await sb.from("properties").select().eq("id", id).single();
 
-        if (response.error) {
-            console.error("Error fetching property:", response.error.code, response.error.message)
+        const { data, error } = response;
+
+        if (error) {
+            console.error("Error fetching property:", error.code, error.message)
             return c.json({ message: "Error, no property with this ID" }, 400)
         }
 
-        return c.json({ message: "Success fetching property", property: response.data }, 200)
+        return c.json(data, 200)
     } catch (error) {
         console.error("Error fetching property:", error)
         return c.json({ message: "Internal server error" }, 500)
