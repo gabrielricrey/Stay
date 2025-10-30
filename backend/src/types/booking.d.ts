@@ -21,7 +21,7 @@ interface BookingWithProfile extends Booking {
 }
 
 interface BookingWithProperty extends Booking {
-    properties: Property
+    properties: Pick<Property, 'name' | 'image_url'>
 }
 
 interface BookingWithUserAndProperty extends BookingWithProfile {
