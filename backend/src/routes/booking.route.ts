@@ -13,7 +13,7 @@ bookingApp.get('/', requireAuth, async (c) => {
         const sb = c.get("supabase");
         const userId = c.get("user")?.id
 
-        const response: PostgrestSingleResponse<Booking[]> = await sb.from("bookings").select().eq("user_id", userId).neq("status", "cancelled");
+        const response: PostgrestSingleResponse<Booking[]> = await sb.from("bookings").select().eq("user_id", userId);
 
         const { data, error } = response;
 
@@ -49,7 +49,8 @@ bookingApp.get('/:id', requireAuth, async (c) => {
         if (error) {
             console.error("Error fetching booking:", error.code, error.message)
             return c.json({ message: "Oops something went wrong, try again" }, 400)
-        }
+        };
+
 
         return c.json({ booking: data }, 200)
     } catch (error) {
