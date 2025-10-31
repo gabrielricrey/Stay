@@ -48,6 +48,9 @@ bookingApp.get('/:id', requireAuth, async (c) => {
 
         if (error) {
             console.error("Error fetching booking:", error.code, error.message)
+            if (error.code === 'PGRST116') {
+                return c.json({ message: "Property doesn't exist" }, 404);
+            }
             return c.json({ message: "Oops something went wrong, try again" }, 400)
         };
 
@@ -63,8 +66,8 @@ bookingApp.post('/', requireAuth, newBookingValidator, async (c) => {
     try {
         const booking: NewBooking = c.req.valid("json");
         const sb = c.get("supabase");
+        const userId = c.get("user")?.id;
 
-        // Fetch property to see if still available
         const response1: PostgrestSingleResponse<Property> = await sb.from("properties").select().eq("id", booking.property_id).single();
 
         if (response1.error) {
@@ -76,7 +79,6 @@ bookingApp.post('/', requireAuth, newBookingValidator, async (c) => {
             return c.json({ message: "Bad luck, property not available anymore" }, 400);
         }
 
-        const userId = c.get("user")?.id;
         const amountOfDays = differenceInCalendarDays(new Date(booking.check_out_date), new Date(booking.check_in_date));
         booking.total_cost = response1.data.price_per_night * amountOfDays;
         booking.user_id = userId!

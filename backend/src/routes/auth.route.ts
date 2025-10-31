@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { deleteCookie } from "hono/cookie";
 
 const authApp = new Hono({ strict: false });
 
@@ -62,6 +63,19 @@ authApp.post('/login', async (c) => {
         return c.json({ error: "Internal server error" }, 500)
     }
 
+})
+
+authApp.post('/logout', async (c) => {
+    try {
+        const sb = c.get("supabase");
+        await sb.auth.signOut();
+        deleteCookie(c, "sb-wpsscnnnxurgkeoqwgjy-auth-token");
+
+        return c.json({ message: "Logged out" }, 200);
+    } catch (error) {
+        console.error("Logout failed:", error);
+        return c.json({ error: "Logout failed" }, 500);
+    }
 })
 
 export default authApp;

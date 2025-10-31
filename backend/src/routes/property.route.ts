@@ -69,6 +69,9 @@ propertyApp.get('/:id', async (c) => {
 
         if (error) {
             console.error("Error fetching property:", error.code, error.message)
+            if (error.code === 'PGRST116') {
+                return c.json({ message: "Property doesn't exist" }, 404);
+            }
             return c.json({ message: "Error, no property with this ID" }, 400)
         }
 

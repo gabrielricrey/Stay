@@ -52,6 +52,10 @@ hostPropertyApp.get('/:id', requireAuth, async (c) => {
 
         if (error) {
             console.error("Error fetching property:", error.code, error.message)
+            if (error.code === 'PGRST116') {
+                return c.json({ message: "Property doesn't exist" }, 404);
+            }
+
             return c.json({ message: "Oops, something went wrong, try again!" }, 400)
         }
 
