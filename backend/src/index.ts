@@ -12,12 +12,14 @@ import { withSupabase, requireAuth } from './middleware/auth.js'
 
 const app = new Hono({ strict: false })
 
+
 app.use('*', cors({
-  origin: 'http://localhost:3000',
-  allowHeaders: ['Authorization', 'Content-Type'],
+  origin: ['http://localhost:3001/', 'https://stay-two.vercel.app'],
+  allowHeaders: ['Authorization', 'Content-Type', 'Access-Control-Allow-Origin'],
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true
 }))
+
 app.use("*", withSupabase);
 
 app.route('/auth', authApp);
