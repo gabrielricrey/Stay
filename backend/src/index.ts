@@ -16,7 +16,8 @@ app.use('*', cors({
   origin: 'http://localhost:3001',
   allowHeaders: ['Authorization', 'Content-Type', 'Access-Control-Allow-Origin'],
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  credentials: true
+  credentials: true,
+  exposeHeaders: ['Set-Cookie']
 }))
 
 app.use("*", withSupabase);
