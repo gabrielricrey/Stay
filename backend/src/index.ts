@@ -12,9 +12,15 @@ import { withSupabase, requireAuth } from './middleware/auth.js'
 
 const app = new Hono({ strict: false })
 
-
 app.use('*', cors({
-  origin: ['http://localhost:3001/', 'https://stay-two.vercel.app'],
+  origin: (origin) => {
+    // origin kan vara null för curl/icke-browser request
+    if (!origin) return 'http://localhost:3001'
+    if (origin === 'http://localhost:3001' || origin === 'https://stay-two.vercel.app') {
+      return origin
+    }
+    return 'http://localhost:3001' // fallback
+  },
   allowHeaders: ['Authorization', 'Content-Type', 'Access-Control-Allow-Origin'],
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true
