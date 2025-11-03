@@ -26,7 +26,7 @@ export function createSupabaseForRequest(c: Context): SupabaseClient {
                         ...options,
                         httpOnly: true,
                         secure: true,
-                        sameSite: "lax",
+                        sameSite: "none",
                         path: "/",
                     });
                 });
