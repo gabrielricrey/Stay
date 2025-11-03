@@ -21,6 +21,8 @@ authApp.post('/register', async (c) => {
                 return c.json({ error: "Invalid email format or password requirements not met" }, 400);
             } else if (error.code === "user_already_exists") {
                 return c.json({ error: "An account with this email already exists" }, 409);
+            } else if (error.code === "weak_password") {
+                return c.json({ error: "Password should be at least 6 characters." }, 400);
             } else if (error.code === "signup_disabled") {
                 return c.json({ error: "Registration is currently disabled" }, 403);
             } else {
@@ -28,9 +30,10 @@ authApp.post('/register', async (c) => {
             }
         }
 
+
         return c.json({
             message: "User created successfully",
-            user: data.user ? { id: data.user.id, email: data.user.email } : null
+            user: data.user ? { id: data.user.id, email: data.user.email } : null,
         }, 201);
 
     } catch (error) {
