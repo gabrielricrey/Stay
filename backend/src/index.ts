@@ -16,7 +16,7 @@ app.use('*', cors({
   origin: (origin) => {
     // origin kan vara null för curl/icke-browser request
     if (!origin) return 'http://localhost:3001'
-    if (origin === 'http://localhost:3001' || origin === 'https://stay-two.vercel.app') {
+    if (origin === 'http://localhost:3001' || origin === 'https://stay-psi.vercel.app') {
       return origin
     }
     return 'http://localhost:3001' // fallback
