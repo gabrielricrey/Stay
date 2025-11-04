@@ -13,7 +13,7 @@ const updateUserProfileSchema: z.ZodType<Partial<UserProfile>> = z.object({
     first_name: z.string().min(2).max(100).optional(),
     last_name: z.string().min(2).max(100).optional(),
     avatar_url: z.string().default('').optional(),
-    is_host: z.boolean().default(false).optional()
+    is_host: z.boolean().optional()
 });
 
 export const userProfileValidator = zValidator('json', userProfileSchema);
