@@ -15,8 +15,7 @@ hostBookingApp.get('/', requireAuth, async (c) => {
         const response: PostgrestSingleResponse<PropertyWithBookings[]> = await sb
             .from("properties")
             .select('*, bookings!inner(*, user_profiles(first_name))')
-            .eq("user_id", userId)
-            .neq("bookings.status", 'cancelled');
+            .eq("user_id", userId);
 
         const { data, error } = response;
 
