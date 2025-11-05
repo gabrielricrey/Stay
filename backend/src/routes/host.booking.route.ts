@@ -102,7 +102,7 @@ hostBookingApp.put('/:id', requireAuth, hostEditBookingValidator, async (c) => {
 
         const data = c.req.valid("json");
 
-        if (data.status !== 'confirmed' && data.status !== 'cancelled') {
+        if (data.status !== 'confirmed' && data.status !== 'rejected') {
             return c.json({ message: "You are not allowed to change status to this type" }, 400);
         }
 

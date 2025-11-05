@@ -14,7 +14,7 @@ const editBookingschema: z.ZodType<Partial<Booking>> = z.object({
 });
 
 const hostEditBookingschema: z.ZodType<Partial<Booking>> = z.object({
-    status: z.enum(["confirmed", "cancelled"])
+    status: z.enum(["confirmed", "rejected"])
 });
 
 export const newBookingValidator = zValidator("json", newBookingschema);
