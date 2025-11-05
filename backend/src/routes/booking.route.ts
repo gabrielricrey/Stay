@@ -145,7 +145,7 @@ bookingApp.put('/:id', requireAuth, editBookingValidator, async (c) => {
             return c.json({ message: "You are not allowed to do this change" }, 400);
         }
 
-        const response: PostgrestSingleResponse<BookingWithProperty> = await sb.from("bookings").update(updateData).eq("id", id).select('*,properties(name, image_url, price_per_night').single();
+        const response: PostgrestSingleResponse<BookingWithProperty> = await sb.from("bookings").update(updateData).eq("id", id).select('properties(name, image_url, price_per_night').single();
 
         const { data, error } = response;
 
